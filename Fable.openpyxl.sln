@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "build", "build\build.fsproj", "{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.openpyxl", "src\Fable.openpyxl.fsproj", "{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.openpyxl.Tests", "tests\Fable.openpyxl.Tests.fsproj", "{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{914692A1-5C65-4E1B-8FE6-D3BF46DF5160}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
