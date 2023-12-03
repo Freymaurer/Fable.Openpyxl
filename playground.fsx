@@ -14,8 +14,10 @@ type Row = i of int
 [<Erase; RequireQualifiedAccessAttribute>]
 type Column = i of string
 
+type CellValue = obj
+
 type Cell =
-  abstract member value: obj
+  abstract member value: obj with get, set
 
 type Worksheet =
   abstract member cell: ?row:int * ?column:int -> Cell
@@ -23,7 +25,7 @@ type Worksheet =
   [<Emit("$0[$1]")>]
   abstract member Item: XlsxCellAdress -> Cell with get
   [<Emit("$0[$1] = $2")>]
-  abstract member Item: XlsxCellAdress -> obj with set
+  abstract member Item: XlsxCellAdress -> CellValue with set
   /// Returns columns of rows of cells
   [<Emit("[list(inner_tuple) for inner_tuple in $0[$1[0] : $1[1]]]")>]
   abstract member Item: (XlsxCellAdress * XlsxCellAdress) -> Cell [] [] with get
@@ -40,9 +42,20 @@ type Worksheet =
   [<Emit("[list(inner_tuple) for inner_tuple in $0[$1[0] : $1[1]]]")>]
   abstract member Item: (Row * Row) -> Cell [] [] with get
   /// Can be used to get or set a cell. If `value` is provided the value will be set.
-  abstract member cell: row:int * column:int * ?value:obj -> Cell
-  abstract member iter_rows: min_row:int * max_col:int * max_row: int
-  abstract member iter_cols: min_row:int * max_col:int * max_row: int
+  abstract member cell: row:int * column:int * ?value:CellValue -> Cell
+  /// Due to f# -> fable python transpilation. As of fable 4.6.1 this cannot be bound to a variable!
+  [<Emit("""for row in $0.iter_rows(min_row=$1, max_col=$2, max_row=$3): $4(row)""")>]
+  abstract member iter_rows: min_row:int * max_col:int * max_row:int * action:(Cell [] -> unit) -> unit
+  /// Due to f# -> fable python transpilation. As of fable 4.6.1 this cannot be bound to a variable!
+  [<Emit("""for col in $0.iter_cols(min_row=$1, max_col=$2, max_row=$3): $4(col)""")>]
+  abstract member iter_cols: min_row:int * max_col:int * max_row:int * action:(Cell [] -> unit) -> unit
+  [<Emit("[list(inner_tuple) for inner_tuple in $0.rows]")>]
+  abstract member rows: Cell [] []
+  [<Emit("[list(inner_tuple) for inner_tuple in $0.columns]")>]
+  abstract member columns: Cell [] []
+  /// iterates over all rows but returns just the value.
+  [<Emit("[list(inner_tuple) for inner_tuple in $0.values]")>]
+  abstract member values: CellValue [] []
 
 type Workbook =
   inherit IEnumerable<Worksheet>
@@ -64,6 +77,8 @@ type Workbook =
   /// 
   /// Does not copy all elements, such as Images and Charts. Cannot copy between workbooks.
   abstract member copy_worksheet: Worksheet -> Worksheet
+  /// This operation will overwrite existing files without warning.
+  abstract member save: path:string -> unit
 
 
 type WorkbookStatic =
@@ -188,6 +203,44 @@ let tests = testList "main" [
           Expect.hasLength row 3 "inner has Length"
         Expect.equal rows[0].[0].value "A1" "A1 - value"
         Expect.equal rows[1].[2].value "C2" "C2 - value"
+      testCase "iter_rows" <| fun _ ->
+        let wb = openpyxl.load_workbook(testFilePath_Simple)
+        let ws = wb.active
+        ws.iter_rows(min_row=1, max_col=3, max_row=2, action=fun row -> for cell in row do cell.value <- 42)
+        Expect.equal ws["A1"].value 42 "A1" 
+        Expect.equal ws["A2"].value 42 "A2" 
+        Expect.equal ws["B1"].value 42 "B1" 
+        Expect.equal ws["B2"].value 42 "B2" 
+        Expect.equal ws["C1"].value 42 "C1" 
+        Expect.equal ws["C2"].value 42 "C2" 
+      testCase "iter_cols" <| fun _ ->
+        let wb = openpyxl.load_workbook(testFilePath_Simple)
+        let ws = wb.active
+        ws.iter_cols(min_row=1, max_col=3, max_row=2, action=fun col -> for cell in col do cell.value <- 42)
+        Expect.equal ws["A1"].value 42 "A1" 
+        Expect.equal ws["A2"].value 42 "A2" 
+        Expect.equal ws["B1"].value 42 "B1" 
+        Expect.equal ws["B2"].value 42 "B2" 
+        Expect.equal ws["C1"].value 42 "C1" 
+        Expect.equal ws["C2"].value 42 "C2" 
+      testCase "rows" <| fun _ ->
+        let wb = openpyxl.load_workbook(testFilePath_Simple)
+        let ws = wb.active
+        let rows = ws.rows
+        Expect.hasLength rows 3 "hasLenght"
+        Expect.equal rows.[0].[0].value "A1" "A1"
+      testCase "columns" <| fun _ ->
+        let wb = openpyxl.load_workbook(testFilePath_Simple)
+        let ws = wb.active
+        let rows = ws.columns
+        Expect.hasLength rows 3 "hasLenght"
+        Expect.equal rows.[0].[0].value "A1" "A1"
+      testCase "values" <| fun _ ->
+        let wb = openpyxl.load_workbook(testFilePath_Simple)
+        let ws = wb.active
+        let rows = ws.values
+        Expect.hasLength rows 3 "hasLenght"
+        Expect.equal rows.[0].[0] "A1" "A1"
     ]
     testCase "get via _.cell" <| fun _ ->
       let wb: Workbook = Workbook.create()

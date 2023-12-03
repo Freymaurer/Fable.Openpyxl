@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 import openpyxl as openpyxl_1
 from openpyxl import Workbook as Workbook_1
-from typing import (Any, Protocol)
+from typing import (Any, Protocol, Callable)
 from fable_modules.fable_library.array_ import equals_with
 from fable_modules.fable_library.list import of_array
 from fable_modules.fable_library.option import some
@@ -18,8 +18,23 @@ class Cell(Protocol):
     def value(self) -> Any:
         ...
 
+    @value.setter
+    @abstractmethod
+    def value(self, __arg0: Any) -> None:
+        ...
+
 
 class Worksheet(Protocol):
+    @property
+    @abstractmethod
+    def columns(self) -> Array[Array[Cell]]:
+        ...
+
+    @property
+    @abstractmethod
+    def rows(self) -> Array[Array[Cell]]:
+        ...
+
     @property
     @abstractmethod
     def title(self) -> str:
@@ -28,6 +43,19 @@ class Worksheet(Protocol):
     @title.setter
     @abstractmethod
     def title(self, __arg0: str) -> None:
+        ...
+
+    @property
+    @abstractmethod
+    def values(self) -> Array[Array[Any]]:
+        ...
+
+    @abstractmethod
+    def iter_cols(self, min_row: int, max_col: int, max_row: int, action: Callable[[Array[Cell]], None]) -> None:
+        ...
+
+    @abstractmethod
+    def iter_rows(self, min_row: int, max_col: int, max_row: int, action: Callable[[Array[Cell]], None]) -> None:
         ...
 
 
@@ -69,7 +97,7 @@ class OpenPyXL(Protocol):
 
 openpyxl: OpenPyXL = openpyxl_1
 
-def _arrow3(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
+def _arrow5(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
     def body(__unit: None=None) -> None:
         wb_obj: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
         sheet_obj: Worksheet = wb_obj.active
@@ -83,7 +111,7 @@ def _arrow3(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
             Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
 
 
-    def _arrow2(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
+    def _arrow4(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
         def body_1(__unit: None=None) -> None:
             wb: Workbook = Workbook_1(None)
             Expect_pass()
@@ -159,7 +187,7 @@ def _arrow3(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
 
             Expect_hasLength(wb_6.sheetnames, 2, "hasLenght")
 
-        def _arrow1(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
+        def _arrow3(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
             def body_8(__unit: None=None) -> None:
                 wb_7: Workbook = Workbook_1(None)
                 ws_3: Worksheet = wb_7.create_sheet("New Sheet")
@@ -334,40 +362,198 @@ def _arrow3(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
 
 
             def body_17(__unit: None=None) -> None:
-                wb_15: Workbook = Workbook_1(None)
+                wb_15: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
                 ws_11: Worksheet = wb_15.active
-                ws_11["A1"] = 42
-                cell_1: Cell = ws_11.cell(1, 1)
-                actual_21: Any = cell_1.value
+                def _arrow1(row_1: Array[Cell]) -> None:
+                    for idx_2 in range(0, (len(row_1) - 1) + 1, 1):
+                        cell_1: Cell = row_1[idx_2]
+                        cell_1.value = 42
+
+                for row in ws_11.iter_rows(min_row=1, max_col=3, max_row=2): _arrow1(row)
+                actual_21: Any = ws_11["A1"].value
                 expected_23: Any = 42
                 if equals(TranspilerHelper_op_BangBang(actual_21), TranspilerHelper_op_BangBang(expected_23)):
-                    Assert_AreEqual(actual_21, expected_23, "")
+                    Assert_AreEqual(actual_21, expected_23, "A1")
 
                 else: 
-                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_23)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_21)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_23)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_21)) + "") + ('[0m')) + " \n\b    Message: ") + "A1") + "")
+
+                actual_22: Any = ws_11["A2"].value
+                expected_24: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_22), TranspilerHelper_op_BangBang(expected_24)):
+                    Assert_AreEqual(actual_22, expected_24, "A2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_24)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_22)) + "") + ('[0m')) + " \n\b    Message: ") + "A2") + "")
+
+                actual_23: Any = ws_11["B1"].value
+                expected_25: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_23), TranspilerHelper_op_BangBang(expected_25)):
+                    Assert_AreEqual(actual_23, expected_25, "B1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_25)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_23)) + "") + ('[0m')) + " \n\b    Message: ") + "B1") + "")
+
+                actual_24: Any = ws_11["B2"].value
+                expected_26: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_24), TranspilerHelper_op_BangBang(expected_26)):
+                    Assert_AreEqual(actual_24, expected_26, "B2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_26)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_24)) + "") + ('[0m')) + " \n\b    Message: ") + "B2") + "")
+
+                actual_25: Any = ws_11["C1"].value
+                expected_27: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_25), TranspilerHelper_op_BangBang(expected_27)):
+                    Assert_AreEqual(actual_25, expected_27, "C1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_27)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_25)) + "") + ('[0m')) + " \n\b    Message: ") + "C1") + "")
+
+                actual_26: Any = ws_11["C2"].value
+                expected_28: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_26), TranspilerHelper_op_BangBang(expected_28)):
+                    Assert_AreEqual(actual_26, expected_28, "C2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_28)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_26)) + "") + ('[0m')) + " \n\b    Message: ") + "C2") + "")
 
 
             def body_18(__unit: None=None) -> None:
-                wb_16: Workbook = Workbook_1(None)
+                wb_16: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
                 ws_12: Worksheet = wb_16.active
-                cell_2: Cell = ws_12.cell(1, 1, some(42))
-                actual_22: Any = cell_2.value
-                expected_24: Any = 42
-                if equals(TranspilerHelper_op_BangBang(actual_22), TranspilerHelper_op_BangBang(expected_24)):
-                    Assert_AreEqual(actual_22, expected_24, "")
+                def _arrow2(col_1: Array[Cell]) -> None:
+                    for idx_3 in range(0, (len(col_1) - 1) + 1, 1):
+                        cell_2: Cell = col_1[idx_3]
+                        cell_2.value = 42
+
+                for col in ws_12.iter_cols(min_row=1, max_col=3, max_row=2): _arrow2(col)
+                actual_27: Any = ws_12["A1"].value
+                expected_29: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_27), TranspilerHelper_op_BangBang(expected_29)):
+                    Assert_AreEqual(actual_27, expected_29, "A1")
 
                 else: 
-                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_24)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_22)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_29)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_27)) + "") + ('[0m')) + " \n\b    Message: ") + "A1") + "")
+
+                actual_28: Any = ws_12["A2"].value
+                expected_30: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_28), TranspilerHelper_op_BangBang(expected_30)):
+                    Assert_AreEqual(actual_28, expected_30, "A2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_30)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_28)) + "") + ('[0m')) + " \n\b    Message: ") + "A2") + "")
+
+                actual_29: Any = ws_12["B1"].value
+                expected_31: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_29), TranspilerHelper_op_BangBang(expected_31)):
+                    Assert_AreEqual(actual_29, expected_31, "B1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_31)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_29)) + "") + ('[0m')) + " \n\b    Message: ") + "B1") + "")
+
+                actual_30: Any = ws_12["B2"].value
+                expected_32: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_30), TranspilerHelper_op_BangBang(expected_32)):
+                    Assert_AreEqual(actual_30, expected_32, "B2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_32)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_30)) + "") + ('[0m')) + " \n\b    Message: ") + "B2") + "")
+
+                actual_31: Any = ws_12["C1"].value
+                expected_33: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_31), TranspilerHelper_op_BangBang(expected_33)):
+                    Assert_AreEqual(actual_31, expected_33, "C1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_33)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_31)) + "") + ('[0m')) + " \n\b    Message: ") + "C1") + "")
+
+                actual_32: Any = ws_12["C2"].value
+                expected_34: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_32), TranspilerHelper_op_BangBang(expected_34)):
+                    Assert_AreEqual(actual_32, expected_34, "C2")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_34)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_32)) + "") + ('[0m')) + " \n\b    Message: ") + "C2") + "")
 
 
-            return singleton(Test_testList("Worksheet", of_array([Test_testCase("init title", body_8), Test_testCase("set title", body_9), Test_testList("Item", of_array([Test_testCase("get cell", body_10), Test_testCase("Create Cell", body_11), Test_testCase("get cell range", body_12), Test_testCase("get column", body_13), Test_testCase("get row", body_14), Test_testCase("get columns", body_15), Test_testCase("get rows", body_16)])), Test_testCase("get via _.cell", body_17), Test_testCase("set via _.cell", body_18)])))
+            def body_19(__unit: None=None) -> None:
+                wb_17: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
+                ws_13: Worksheet = wb_17.active
+                rows_1: Array[Array[Cell]] = [list(inner_tuple) for inner_tuple in ws_13.rows]
+                Expect_hasLength(rows_1, 3, "hasLenght")
+                actual_33: Any = rows_1[0][0].value
+                expected_35: Any = "A1"
+                if equals(TranspilerHelper_op_BangBang(actual_33), TranspilerHelper_op_BangBang(expected_35)):
+                    Assert_AreEqual(actual_33, expected_35, "A1")
 
-        return append(singleton(Test_testList("Workbook", of_array([Test_testCase("Create new", body_1), Test_testCase("create new worksheet", body_2), Test_testCase("create new worksheet at position", body_3), Test_testCase("sheetnames", body_4), Test_testCase("Item", body_5), Test_testCase("for sheet in wb", body_6), Test_testCase("copy_worksheet", body_7)]))), delay(_arrow1))
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_35)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_33)) + "") + ('[0m')) + " \n\b    Message: ") + "A1") + "")
 
-    return append(singleton(Test_testCase("Minimal Read", body)), delay(_arrow2))
+
+            def body_20(__unit: None=None) -> None:
+                wb_18: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
+                ws_14: Worksheet = wb_18.active
+                rows_2: Array[Array[Cell]] = [list(inner_tuple) for inner_tuple in ws_14.columns]
+                Expect_hasLength(rows_2, 3, "hasLenght")
+                actual_34: Any = rows_2[0][0].value
+                expected_36: Any = "A1"
+                if equals(TranspilerHelper_op_BangBang(actual_34), TranspilerHelper_op_BangBang(expected_36)):
+                    Assert_AreEqual(actual_34, expected_36, "A1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_36)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_34)) + "") + ('[0m')) + " \n\b    Message: ") + "A1") + "")
 
 
-tests: Model_TestCase = Test_testList("main", to_list(delay(_arrow3)))
+            def body_21(__unit: None=None) -> None:
+                wb_19: Workbook = openpyxl.load_workbook("C:\\Users\\Kevin\\Desktop\\BookTest.xlsx")
+                ws_15: Worksheet = wb_19.active
+                rows_3: Array[Array[Any]] = [list(inner_tuple) for inner_tuple in ws_15.values]
+                Expect_hasLength(rows_3, 3, "hasLenght")
+                actual_35: Any = rows_3[0][0]
+                expected_37: Any = "A1"
+                if equals(TranspilerHelper_op_BangBang(actual_35), TranspilerHelper_op_BangBang(expected_37)):
+                    Assert_AreEqual(actual_35, expected_37, "A1")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_37)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_35)) + "") + ('[0m')) + " \n\b    Message: ") + "A1") + "")
+
+
+            def body_22(__unit: None=None) -> None:
+                wb_20: Workbook = Workbook_1(None)
+                ws_16: Worksheet = wb_20.active
+                ws_16["A1"] = 42
+                cell_3: Cell = ws_16.cell(1, 1)
+                actual_36: Any = cell_3.value
+                expected_38: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_36), TranspilerHelper_op_BangBang(expected_38)):
+                    Assert_AreEqual(actual_36, expected_38, "")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_38)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_36)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+
+
+            def body_23(__unit: None=None) -> None:
+                wb_21: Workbook = Workbook_1(None)
+                ws_17: Worksheet = wb_21.active
+                cell_4: Cell = ws_17.cell(1, 1, some(42))
+                actual_37: Any = cell_4.value
+                expected_39: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_37), TranspilerHelper_op_BangBang(expected_39)):
+                    Assert_AreEqual(actual_37, expected_39, "")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_39)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_37)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+
+
+            return singleton(Test_testList("Worksheet", of_array([Test_testCase("init title", body_8), Test_testCase("set title", body_9), Test_testList("Item", of_array([Test_testCase("get cell", body_10), Test_testCase("Create Cell", body_11), Test_testCase("get cell range", body_12), Test_testCase("get column", body_13), Test_testCase("get row", body_14), Test_testCase("get columns", body_15), Test_testCase("get rows", body_16), Test_testCase("iter_rows", body_17), Test_testCase("iter_cols", body_18), Test_testCase("rows", body_19), Test_testCase("columns", body_20), Test_testCase("values", body_21)])), Test_testCase("get via _.cell", body_22), Test_testCase("set via _.cell", body_23)])))
+
+        return append(singleton(Test_testList("Workbook", of_array([Test_testCase("Create new", body_1), Test_testCase("create new worksheet", body_2), Test_testCase("create new worksheet at position", body_3), Test_testCase("sheetnames", body_4), Test_testCase("Item", body_5), Test_testCase("for sheet in wb", body_6), Test_testCase("copy_worksheet", body_7)]))), delay(_arrow3))
+
+    return append(singleton(Test_testCase("Minimal Read", body)), delay(_arrow4))
+
+
+tests: Model_TestCase = Test_testList("main", to_list(delay(_arrow5)))
 
 Pyxpecto_runTests([], tests)
 
