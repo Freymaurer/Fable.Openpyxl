@@ -7,6 +7,8 @@ open System.Collections.Generic
 
 /// For example "A1"
 type XlsxCellAdress = string
+/// For example "A1:E5"
+type XlsxCellRangeAdress = string
 type Letters = string
 
 [<Erase; RequireQualifiedAccessAttribute>]
@@ -16,8 +18,51 @@ type Column = i of string
 
 type CellValue = obj
 
+module CellType =
+  let [<Literal>] Literal_Float = "float"
+  let [<Literal>] Literal_Integer = "int"
+  let [<Literal>] Literal_String = "str"
+  let [<Literal>] Literal_Boolean = "bool"
+  let [<Literal>] Literal_DateTime = "datetime"
+
+[<RequireQualifiedAccess>]
+type CellType =
+| Float 
+| Integer
+| String
+| Boolean
+| DateTime
+with
+  static member fromCellType (cellType:string) =
+    match cellType with
+    | CellType.Literal_Integer -> Integer
+    | CellType.Literal_Float -> Float
+    | CellType.Literal_String -> String
+    | CellType.Literal_Boolean -> Boolean
+    | CellType.Literal_DateTime -> DateTime
+    | anyElse -> failwith $"Unknown cell type of type: '{anyElse}'"
+
 type Cell =
-  abstract member value: obj with get, set
+  abstract member value: CellValue with get, set
+  [<Emit("type($0.value).__name__")>]
+  abstract member cellType: string with get
+
+type Table =
+  [<Emit("$0.displayName")>]
+  abstract member displayName: string with get, set
+  abstract member name: string with get, set
+  abstract member id: int with get, set
+  abstract member headerRowCount: bool with get, set
+
+type TableMap =
+  [<Emit("$0[$1]")>]
+  abstract member Item: string -> Table
+  [<Emit("list($0.values())")>]
+  abstract member values: unit -> Table []
+  /// Returns array of tuples: (displayName * ref)
+  abstract member items: unit -> (string * string) []
+  [<Emit("del $0[$1]")>]
+  abstract member delete: displayName: string -> unit
 
 type Worksheet =
   abstract member cell: ?row:int * ?column:int -> Cell
@@ -64,6 +109,12 @@ type Worksheet =
   abstract member insert_cols: int -> unit
   abstract member delete_rows: start_index:int * count:int -> unit
   abstract member delete_cols: start_index:int * count:int -> unit
+  abstract member add_table: Table -> unit
+  abstract member tables: TableMap with get
+  [<Emit("del $0.tables[$1]")>]
+  abstract member delete_table: displayName: string -> unit
+  [<Emit("len($0.tables)")>]
+  abstract member tableCount: int
 
 
 type Workbook =
@@ -89,18 +140,25 @@ type Workbook =
   /// This operation will overwrite existing files without warning.
   abstract member save: path:string -> unit
   abstract member template: bool with get, set
+  abstract member iso_dates: bool with get, set
 
 
 type WorkbookStatic =
   [<Emit("new $0($1)")>]
   abstract member create: unit -> Workbook
 
+type TableStatic =
+  [<Emit("$0(displayName=$1, ref=$2)")>]
+  abstract member create: displayName:string * ref:XlsxCellRangeAdress -> Table
+
 [<Import("Workbook", "openpyxl")>]
 let Workbook : WorkbookStatic = nativeOnly
-
+[<Import("Table", "openpyxl.worksheet.table")>]
+let Table: TableStatic = nativeOnly
 
 type OpenPyXL =
-  abstract member load_workbook: string -> Workbook 
+  abstract member load_workbook: string -> Workbook
+  abstract member Workbook: unit -> Workbook
 
 let openpyxl: OpenPyXL = importAll "openpyxl"
 
@@ -108,11 +166,17 @@ open Fable.Pyxpecto
 
 let tests = testList "main" [
   let testFilePath_Simple = "C:\\Users\\Kevin\\Desktop\\BookTest.xlsx"
-  testCase "Minimal Read" <| fun _ ->
-    let wb_obj = openpyxl.load_workbook(testFilePath_Simple)
-    let sheet_obj = wb_obj.active
-    let cell_obj = sheet_obj.cell(row = 1, column = 1)
-    Expect.equal cell_obj.value (box "A1") "" 
+  testList "openpyxl" [
+    testCase "Minimal Read" <| fun _ ->
+      let wb_obj = openpyxl.load_workbook(testFilePath_Simple)
+      let sheet_obj = wb_obj.active
+      let cell_obj = sheet_obj.cell(row = 1, column = 1)
+      Expect.equal cell_obj.value (box "A1") "" 
+    testCase "init wb" <| fun _ ->
+      let wb = openpyxl.Workbook()
+      let ws = wb.active
+      Expect.equal ws.title "Sheet" "" 
+  ]
   testList "Workbook" [
     testCase "Create new" <| fun _ ->
       let wb = Workbook.create()
@@ -260,18 +324,143 @@ let tests = testList "main" [
         Expect.hasLength ws.rows 4 "row count" 
         Expect.hasLength ws.columns 3 "column count"
         Expect.equal ws.["C4"].value 1204 "value C4"
+      testCase "delete" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        ws.delete_table("Table2")
+        let tables = ws.tables.values()
+        Expect.hasLength tables 1 "lenght"
+        Expect.equal tables[0] t1 "1"
+      testCase "tableCount" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        let actual = ws.tableCount
+        Expect.equal actual 2 ""
     ]
-    testCase "get via _.cell" <| fun _ ->
-      let wb: Workbook = Workbook.create()
-      let ws = wb.active
-      ws["A1"] <- box 42
-      let cell = ws.cell(1,1)
-      Expect.equal cell.value (box 42) "" 
-    testCase "set via _.cell" <| fun _ ->
-      let wb: Workbook = Workbook.create()
-      let ws = wb.active
-      let cell = ws.cell(1,1, 42)
-      Expect.equal cell.value (box 42) "" 
+    testList "Cell" [
+      testCase "get via _.cell" <| fun _ ->
+        let wb: Workbook = Workbook.create()
+        let ws = wb.active
+        ws["A1"] <- box 42
+        let cell = ws.cell(1,1)
+        Expect.equal cell.value (box 42) "" 
+      testCase "set via _.cell" <| fun _ ->
+        let wb: Workbook = Workbook.create()
+        let ws = wb.active
+        let cell = ws.cell(1,1, 42)
+        Expect.equal cell.value (box 42) "" 
+      testList "cellType" [
+        testCase "int" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, 42)
+          let actual = cell.cellType |> CellType.fromCellType
+          let expected = CellType.Integer
+          Expect.equal actual expected ""
+        testCase "float" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, 42.)
+          let actual = cell.cellType |> CellType.fromCellType
+          let expected = CellType.Float
+          Expect.equal actual expected ""
+        testCase "string" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, "Hello World")
+          let t = cell.cellType 
+          let expected = CellType.String
+          let actual = CellType.fromCellType t
+          Expect.equal actual expected ""
+        testCase "bool-true" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, true)
+          let t = cell.cellType 
+          let expected = CellType.Boolean
+          let actual = CellType.fromCellType t
+          Expect.equal actual expected ""
+        testCase "bool-false" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, false)
+          let t = cell.cellType 
+          let expected = CellType.Boolean
+          let actual = CellType.fromCellType t
+          Expect.equal actual expected ""
+        testCase "datetime" <| fun _ ->
+          let wb: Workbook = Workbook.create()
+          let ws = wb.active
+          let cell = ws.cell(1,1, System.DateTime.Now)
+          let t = cell.cellType 
+          let expected = CellType.DateTime
+          printfn "%A" t
+          let actual = CellType.fromCellType t
+          Expect.equal actual expected ""
+      ]
+    ]
+    testList "Table" [
+      testCase "create" <| fun _ ->
+        let table = Table.create("NewTable", "A1:B2")
+        Expect.equal table.displayName "NewTable" ""
+      testCase "add to ws" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let table = Table.create("NewTable", "A1:B2")
+        ws.add_table(table)
+        let table_get = ws.tables.["NewTable"]
+        Expect.equal table_get.displayName "NewTable" ""
+    ]
+    testList "ws.tables" [
+      testCase "Item get" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        Expect.equal ws.tables.["Table1"] t1 "Equal table 1"
+        Expect.equal ws.tables.["Table2"] t2 "Equal table 2"
+      testCase "values()" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        let tables = ws.tables.values()
+        Expect.equal tables[0] t1 "equal t1"
+        Expect.equal tables[1] t2 "equal t2"
+      testCase "items()" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        let tables = ws.tables.items()
+        Expect.equal tables[0] ("Table1", "A1:B2") "1"
+        Expect.equal tables[1] ("Table2", "C1:D2") "2"
+      testCase "delete" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let t1 = Table.create("Table1", "A1:B2")
+        let t2 = Table.create("Table2", "C1:D2")
+        ws.add_table(t1)
+        ws.add_table(t2)
+        ws.tables.delete("Table2")
+        let tables = ws.tables.values()
+        Expect.hasLength tables 1 "lenght"
+        Expect.equal tables[0] t1 "1"
+    ]
   ]
 ] 
 
