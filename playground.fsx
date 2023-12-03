@@ -56,6 +56,15 @@ type Worksheet =
   /// iterates over all rows but returns just the value.
   [<Emit("[list(inner_tuple) for inner_tuple in $0.values]")>]
   abstract member values: CellValue [] []
+  /// Used to append rows
+  abstract member append: CellValue [] -> unit
+  /// The default is one row. For example to insert a row at 7 (before the existing row 7):
+  abstract member insert_rows: int -> unit
+  /// The default is one column. For example to insert a row at 7 (before the existing row 7):
+  abstract member insert_cols: int -> unit
+  abstract member delete_rows: start_index:int * count:int -> unit
+  abstract member delete_cols: start_index:int * count:int -> unit
+
 
 type Workbook =
   inherit IEnumerable<Worksheet>
@@ -79,6 +88,7 @@ type Workbook =
   abstract member copy_worksheet: Worksheet -> Worksheet
   /// This operation will overwrite existing files without warning.
   abstract member save: path:string -> unit
+  abstract member template: bool with get, set
 
 
 type WorkbookStatic =
@@ -241,6 +251,15 @@ let tests = testList "main" [
         let rows = ws.values
         Expect.hasLength rows 3 "hasLenght"
         Expect.equal rows.[0].[0] "A1" "A1"
+      testCase "append" <| fun _ ->
+        let wb = Workbook.create()
+        let ws = wb.active
+        let treedata = [|[|box "Type"; box "Leaf Color"; box "Height"|]; [|box "Maple"; box "Red"; box 549|]; [|box "Oak"; box "Green"; box 783|]; [|box "Pine"; box "Green";box 1204|]|]
+        for row in treedata do
+          ws.append(row)
+        Expect.hasLength ws.rows 4 "row count" 
+        Expect.hasLength ws.columns 3 "column count"
+        Expect.equal ws.["C4"].value 1204 "value C4"
     ]
     testCase "get via _.cell" <| fun _ ->
       let wb: Workbook = Workbook.create()

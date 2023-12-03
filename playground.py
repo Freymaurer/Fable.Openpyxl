@@ -25,6 +25,10 @@ class Cell(Protocol):
 
 
 class Worksheet(Protocol):
+    @abstractmethod
+    def append(self, __arg0: Array[Any]) -> None:
+        ...
+
     @property
     @abstractmethod
     def columns(self) -> Array[Array[Cell]]:
@@ -80,6 +84,20 @@ class Workbook(IEnumerable_1, IEnumerable[Any]):
     @property
     @abstractmethod
     def sheetnames(self) -> Array[str]:
+        ...
+
+    @property
+    @abstractmethod
+    def template(self) -> bool:
+        ...
+
+    @template.setter
+    @abstractmethod
+    def template(self, __arg0: bool) -> None:
+        ...
+
+    @abstractmethod
+    def save(self, path: str) -> None:
         ...
 
 
@@ -522,22 +540,27 @@ def _arrow5(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
             def body_22(__unit: None=None) -> None:
                 wb_20: Workbook = Workbook_1(None)
                 ws_16: Worksheet = wb_20.active
-                ws_16["A1"] = 42
-                cell_3: Cell = ws_16.cell(1, 1)
-                actual_36: Any = cell_3.value
-                expected_38: Any = 42
+                treedata: Array[Array[Any]] = [["Type", "Leaf Color", "Height"], ["Maple", "Red", 549], ["Oak", "Green", 783], ["Pine", "Green", 1204]]
+                for idx_4 in range(0, (len(treedata) - 1) + 1, 1):
+                    row_2: Array[Any] = treedata[idx_4]
+                    ws_16.append(row_2)
+                Expect_hasLength([list(inner_tuple) for inner_tuple in ws_16.rows], 4, "row count")
+                Expect_hasLength([list(inner_tuple) for inner_tuple in ws_16.columns], 3, "column count")
+                actual_36: Any = ws_16["C4"].value
+                expected_38: Any = 1204
                 if equals(TranspilerHelper_op_BangBang(actual_36), TranspilerHelper_op_BangBang(expected_38)):
-                    Assert_AreEqual(actual_36, expected_38, "")
+                    Assert_AreEqual(actual_36, expected_38, "value C4")
 
                 else: 
-                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_38)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_36)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_38)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_36)) + "") + ('[0m')) + " \n\b    Message: ") + "value C4") + "")
 
 
             def body_23(__unit: None=None) -> None:
                 wb_21: Workbook = Workbook_1(None)
                 ws_17: Worksheet = wb_21.active
-                cell_4: Cell = ws_17.cell(1, 1, some(42))
-                actual_37: Any = cell_4.value
+                ws_17["A1"] = 42
+                cell_3: Cell = ws_17.cell(1, 1)
+                actual_37: Any = cell_3.value
                 expected_39: Any = 42
                 if equals(TranspilerHelper_op_BangBang(actual_37), TranspilerHelper_op_BangBang(expected_39)):
                     Assert_AreEqual(actual_37, expected_39, "")
@@ -546,7 +569,20 @@ def _arrow5(__unit: None=None) -> IEnumerable_1[Model_TestCase]:
                     Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_39)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_37)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
 
 
-            return singleton(Test_testList("Worksheet", of_array([Test_testCase("init title", body_8), Test_testCase("set title", body_9), Test_testList("Item", of_array([Test_testCase("get cell", body_10), Test_testCase("Create Cell", body_11), Test_testCase("get cell range", body_12), Test_testCase("get column", body_13), Test_testCase("get row", body_14), Test_testCase("get columns", body_15), Test_testCase("get rows", body_16), Test_testCase("iter_rows", body_17), Test_testCase("iter_cols", body_18), Test_testCase("rows", body_19), Test_testCase("columns", body_20), Test_testCase("values", body_21)])), Test_testCase("get via _.cell", body_22), Test_testCase("set via _.cell", body_23)])))
+            def body_24(__unit: None=None) -> None:
+                wb_22: Workbook = Workbook_1(None)
+                ws_18: Worksheet = wb_22.active
+                cell_4: Cell = ws_18.cell(1, 1, some(42))
+                actual_38: Any = cell_4.value
+                expected_40: Any = 42
+                if equals(TranspilerHelper_op_BangBang(actual_38), TranspilerHelper_op_BangBang(expected_40)):
+                    Assert_AreEqual(actual_38, expected_40, "")
+
+                else: 
+                    Helper_expectError(((((((((((((("    Expected: " + ('[36m')) + "") + str(expected_40)) + "") + ('[0m')) + " \n\b    Actual: ") + ('[31m')) + "") + str(actual_38)) + "") + ('[0m')) + " \n\b    Message: ") + "") + "")
+
+
+            return singleton(Test_testList("Worksheet", of_array([Test_testCase("init title", body_8), Test_testCase("set title", body_9), Test_testList("Item", of_array([Test_testCase("get cell", body_10), Test_testCase("Create Cell", body_11), Test_testCase("get cell range", body_12), Test_testCase("get column", body_13), Test_testCase("get row", body_14), Test_testCase("get columns", body_15), Test_testCase("get rows", body_16), Test_testCase("iter_rows", body_17), Test_testCase("iter_cols", body_18), Test_testCase("rows", body_19), Test_testCase("columns", body_20), Test_testCase("values", body_21), Test_testCase("append", body_22)])), Test_testCase("get via _.cell", body_23), Test_testCase("set via _.cell", body_24)])))
 
         return append(singleton(Test_testList("Workbook", of_array([Test_testCase("Create new", body_1), Test_testCase("create new worksheet", body_2), Test_testCase("create new worksheet at position", body_3), Test_testCase("sheetnames", body_4), Test_testCase("Item", body_5), Test_testCase("for sheet in wb", body_6), Test_testCase("copy_worksheet", body_7)]))), delay(_arrow3))
 
