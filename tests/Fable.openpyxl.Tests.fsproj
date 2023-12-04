@@ -18,7 +18,7 @@
     <Compile Include="Main.fs" />
   </ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="TestFiles/MinimalTest.xlsx">
+		<EmbeddedResource Include="TestFiles\MinimalTest.xlsx">
 		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</EmbeddedResource>
 	</ItemGroup>

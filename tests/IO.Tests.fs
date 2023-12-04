@@ -9,7 +9,7 @@ let main = testList "io" [
         let wb = Workbook.create()
         let output = BytesIO.create()
         wb.save(output)
-        output.ToFile("./TestFiles/MinWriteTest.xlsx")
+        output.ToFile(TestPaths.Write.SimpleWrite)
     testCase "to buffer" <| fun _ ->
         let wb = Workbook.create()
         let output = BytesIO.create()
@@ -23,7 +23,7 @@ let main = testList "io" [
         wb.active["A2"] <- 69
         wb.save(output)
         let bytes = output.getvalue()
-        Helper.writeBytes (bytes, "./TestFiles/ByteTest.xlsx")
+        Helper.writeBytes (bytes, TestPaths.Write.ByteTest)
     testCase "Minimal Read" <| fun _ ->
         let wb_obj = openpyxl.load_workbook(testFilePath_Simple)
         let sheet_obj = wb_obj.active

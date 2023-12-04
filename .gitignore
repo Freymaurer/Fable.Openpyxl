@@ -399,3 +399,5 @@ FodyWeavers.xsd
 .venv
 fable_modules
 _packagemanagement
+tests/py
+tests/TestFiles/Write/*.xlsx

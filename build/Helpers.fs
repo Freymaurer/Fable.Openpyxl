@@ -124,7 +124,7 @@ let npx =
 
 let python =
     let path =
-        match ProcessUtils.tryFindFileOnPath "python" with
+        match ProcessUtils.tryFindFileOnPath ".venv/Scripts/python.exe" with
         | Some path -> path
         | None ->
             "py was not found in path. Please install it and make sure it's available from your path."

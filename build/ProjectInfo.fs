@@ -7,7 +7,8 @@ let project = "Fable.Openpyxl"
 
 let testProjects = 
     [
-        // add relative paths (from project root) to your testprojects here
+        // add relative paths (from project root) to your testprojects here##
+        "tests"
     ]
 
 let solutionFile  = $"{project}.sln"
