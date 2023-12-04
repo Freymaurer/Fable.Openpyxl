@@ -23,6 +23,7 @@ let projectRepo = $"https://github.com/{gitOwner}/{project}"
 
 let pkgDir = "pkg"
 
+let NUGET_API_KEY = "MY_NUGET_KEY"
 
 // Create RELEASE_NOTES.md if not existing. Or "release" would throw an error.
 Fake.Extensions.Release.ReleaseNotes.ensure()
