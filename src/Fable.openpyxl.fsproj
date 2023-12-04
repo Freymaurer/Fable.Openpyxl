@@ -1,12 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Authors>Kevin Frey</Authors>
+    <Description>Fable bindings for openpyxl</Description>
+    <Summary>Fable bindings for openpyxl in FSharp</Summary>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>F# FSharp spreadsheet Excel xlsx exceljs fable fable-bindings fable-python</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Freymaurer/Fable.Openpyxl</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Library.fs" />
+	<None Include="../README.md" Pack="true" PackagePath="\" />
+    <Compile Include="Openpyxl.fs" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="4.2.0" />
+	<PackageReference Update="FSharp.Core" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
+  </ItemGroup>
 </Project>

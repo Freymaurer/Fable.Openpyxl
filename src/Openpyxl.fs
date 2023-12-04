@@ -1,21 +1,25 @@
-#r "nuget: Fable.Core, 4.2.0"
-#r "nuget: Fable.Pyxpecto, 1.0.0-beta.2"
+﻿module Fable.Openpyxl
 
 open Fable.Core
 open Fable.Core.PyInterop
 open System.Collections.Generic
+
+module Helper =
+  let writeBytes (bytes:byte [], path: string) : unit = emitPyExpr (bytes, path) """
+    # Write the bytes data to the output file path using shutil
+    with open($1, 'wb') as output_file:
+        output_file.write($0)
+  """
 
 /// For example "A1"
 type XlsxCellAdress = string
 /// For example "A1:E5"
 type XlsxCellRangeAdress = string
 type Letters = string
-
 [<Erase; RequireQualifiedAccessAttribute>]
 type Row = i of int
 [<Erase; RequireQualifiedAccessAttribute>]
 type Column = i of string
-
 type CellValue = obj
 
 module CellType =
@@ -152,6 +156,14 @@ and BytesIO =
   abstract member getbuffer: unit -> obj
   abstract member getvalue: unit -> byte []
 
+type OpenPyXL =
+  abstract member load_workbook: path:string -> Workbook
+  abstract member load_workbook: bytes:byte [] -> Workbook
+  abstract member load_workbook: buffer: obj -> Workbook
+  abstract member Workbook: unit -> Workbook
+
+// - - Static create helper - - //
+
 type WorkbookStatic =
   [<Emit("new $0($1)")>]
   abstract member create: unit -> Workbook
@@ -168,29 +180,34 @@ type BytesIOStatic =
   [<Emit("$0($1)")>]
   abstract member create: byte [] -> BytesIO
 
+// - - Access helper - - //
+
 [<Import("Workbook", "openpyxl")>]
 let Workbook : WorkbookStatic = nativeOnly
 [<Import("Table", "openpyxl.worksheet.table")>]
 let Table: TableStatic = nativeOnly
-
 [<Import("BytesIO","io")>]
 let BytesIO: BytesIOStatic = nativeOnly
-
-type OpenPyXL =
-  abstract member load_workbook: string -> Workbook
-  abstract member Workbook: unit -> Workbook
-
-let writeBytes (bytes:byte [], path: string) : unit = emitPyExpr (bytes, path) """
-  # Write the bytes data to the output file path using shutil
-  with open($1, 'wb') as output_file:
-      output_file.write($0)
-"""
-
 let openpyxl: OpenPyXL = importAll "openpyxl"
 
-let path_to_file = @"tests\TestFiles\MinimalTest.xlsx"
-
-let wb = openpyxl.load_workbook(path_to_file)
-let ws = wb.active
-let cell = ws.cell(row = 1, column = 1)
-printfn "%A" (cell.value = "A1") // true
+type Xlsx =
+    /// read from a file
+    static member readFile (path:string) : Workbook = openpyxl.load_workbook path
+    /// read from bytes
+    static member read (bytes:byte []) : Workbook = openpyxl.load_workbook bytes
+    /// load from a buffer
+    static member load (buffer:obj) : Workbook = openpyxl.load_workbook buffer
+    /// write to a file
+    static member writeFile(wb: Workbook, path: string) : unit = wb.save(path)
+    /// write to a stream
+    static member write (wb: Workbook) = 
+        let output = BytesIO.create()
+        wb.save(output)
+        let bytes = output.getvalue()
+        bytes
+    /// write to a new buffer
+    static member writeBuffer (wb: Workbook) = 
+        let output = BytesIO.create()
+        wb.save(output)
+        let buffer = output.getbuffer()
+        buffer

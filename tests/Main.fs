@@ -1,6 +1,16 @@
 ﻿module Fable.openpyxl.Tests
-open Expecto
+open Fable.Pyxpecto
+
+let test_main = testList "main" [
+    Tests.Cell.main
+    Tests.Table.main
+    Tests.Tables.main
+    Tests.Worksheet.main
+    Tests.Workbook.main
+    Tests.IO.main
+    Tests.Openpyxl.main
+] 
 
 [<EntryPoint>]
 let main argv =
-    Tests.runTestsInAssembly defaultConfig argv
+    Pyxpecto.runTests [||] test_main

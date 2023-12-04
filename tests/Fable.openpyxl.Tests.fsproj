@@ -7,14 +7,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Sample.fs" />
+    <Compile Include="TestPaths.fs" />
+    <Compile Include="Tables.Tests.fs" />
+    <Compile Include="Table.Tests.fs" />
+    <Compile Include="Cell.Tests.fs" />
+    <Compile Include="Worksheet.Tests.fs" />
+    <Compile Include="Workbook.Tests.fs" />
+    <Compile Include="IO.Tests.fs" />
+    <Compile Include="Openpyxl.Tests.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-
+	<ItemGroup>
+		<EmbeddedResource Include="TestFiles/MinimalTest.xlsx">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</EmbeddedResource>
+	</ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Expecto" Version="9.*" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-    <PackageReference Update="FSharp.Core" Version="6.*" />
+    <PackageReference Include="Fable.Pyxpecto" Version="1.0.0-beta.2" />
+    <ProjectReference Include="..\src\Fable.Openpyxl.fsproj" />
+    <PackageReference Update="FSharp.Core" Version="8.0.100" />
   </ItemGroup>
 </Project>

@@ -5,15 +5,20 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "build", "build\build.fsproj", "{95BD8D56-5F71-44A9-B9DF-A2B5BCFC92A9}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.openpyxl", "src\Fable.openpyxl.fsproj", "{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.Openpyxl", "src\Fable.Openpyxl.fsproj", "{CCCBBB0B-CDE8-4C55-8A56-EA7F08AD854B}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.openpyxl.Tests", "tests\Fable.openpyxl.Tests.fsproj", "{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fable.Openpyxl.Tests", "tests\Fable.Openpyxl.Tests.fsproj", "{E9B0577D-7EFF-4427-8ED3-7B0E98D4B43E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{914692A1-5C65-4E1B-8FE6-D3BF46DF5160}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		build.cmd = build.cmd
 		.config\dotnet-tools.json = .config\dotnet-tools.json
+		playground.fsx = playground.fsx
 		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
+		requirements.txt = requirements.txt
+		transpile.cmd = transpile.cmd
 	EndProjectSection
 EndProject
 Global
@@ -37,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42C86869-B828-4DBD-BCEA-661961C9382B}
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,7 @@
 open Fake.Core
 
 
-let project = "Fable.openpyxl"
+let project = "Fable.Openpyxl"
 
 let testProjects = 
     [
