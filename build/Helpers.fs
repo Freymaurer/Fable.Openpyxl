@@ -123,11 +123,12 @@ let npx =
     Proc.createProcess npmPath
 
 let python =
+    let v_path = ".venv/Scripts/python.exe"
     let path =
-        match ProcessUtils.tryFindFileOnPath ".venv/Scripts/python.exe" with
+        match ProcessUtils.tryFindFileOnPath v_path with
         | Some path -> path
         | None ->
-            "py was not found in path. Please install it and make sure it's available from your path."
+            "python virtual environment was not found in path. Please install it and make sure it's available from your path."
             |> failwith
 
     Proc.createProcess path
