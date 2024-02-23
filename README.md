@@ -4,6 +4,19 @@ Fable bindings for the python xlsx reader/writer **openpyxl**.
 
 > Based on openpyxl version `3.1.2`.
 
+# Install
+
+<a href="https://www.nuget.org/packages/Fable.Openpyxl/">![Nuget](https://img.shields.io/nuget/v/Fable.Openpyxl?logo=nuget&color=success)</a>
+<a href="https://www.nuget.org/packages/Fable.Openpyxl/">![Nuget](https://img.shields.io/nuget/dt/Fable.Openpyxl?logo=nuget)</a>
+
+```xml
+<PackageReference Include="Fable.Openpyxl" Version="0.1.0" />
+```
+
+```fsharp
+#r "nuget: Fable.Openpyxl, 0.1.0"
+```
+
 # Docs
 
 Fable.Openpyxl follows openpyxl syntax as close as possible. Most documentation from openpyxl can be used for Fable.Openpyxl together with built in F# intellisense.
