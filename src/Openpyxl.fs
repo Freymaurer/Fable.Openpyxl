@@ -59,7 +59,9 @@ type Table =
   abstract member displayName: string with get, set
   abstract member name: string with get, set
   abstract member id: int with get, set
-  abstract member headerRowCount: bool with get, set
+  [<Emit("$0.headerRowCount")>]
+  abstract member headerRowCount: int with get, set
+  abstract member ref: string with get, set
 
 type TableMap =
   [<Emit("$0[$1]")>]
