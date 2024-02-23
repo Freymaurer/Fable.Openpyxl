@@ -37,4 +37,12 @@ let main = testList "Workbook" [
         Expect.equal source.title "Sheet" "source title"
         Expect.equal copy.title "Sheet Copy" "copy title"
         Expect.hasLength wb.sheetnames 2 "hasLenght"
+    testCase "worksheets" <| fun _ ->
+        let wb = Workbook.create()
+        let _ = wb.create_sheet("New Sheet1")
+        let _ = wb.create_sheet("New Sheet2")
+        let _ = wb.create_sheet("New Sheet3")
+        Expect.hasLength wb.worksheets 4 "hasLength"
+        Expect.equal wb.worksheets.[0].title "Sheet" "default sheet"
+        Expect.equal wb.worksheets.[1].title "New Sheet1" "title"
 ]

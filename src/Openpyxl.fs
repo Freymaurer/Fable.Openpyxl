@@ -145,11 +145,16 @@ type Workbook =
   /// 
   /// Does not copy all elements, such as Images and Charts. Cannot copy between workbooks.
   abstract member copy_worksheet: Worksheet -> Worksheet
+  abstract member index: Worksheet -> int 
+  abstract member remove: Worksheet -> unit 
+  abstract member move_sheet: Worksheet * offset:int -> unit 
+  abstract member move_sheet: string  * offset:int -> unit 
   /// This operation will overwrite existing files without warning.
   abstract member save: path:string -> unit
   abstract member save: bytesio_obj:BytesIO -> unit
   abstract member template: bool with get, set
   abstract member iso_dates: bool with get, set
+  abstract member worksheets: Worksheet [] with get, set
 
 and BytesIO =
   abstract member x: string
