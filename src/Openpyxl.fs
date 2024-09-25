@@ -1,5 +1,7 @@
 ﻿module Fable.Openpyxl
 
+#if FABLE_COMPILER_PYTHON || !FABLE_COMPILER
+
 open Fable.Core
 open Fable.Core.PyInterop
 open System.Collections.Generic
@@ -218,3 +220,5 @@ type Xlsx =
         wb.save(output)
         let buffer = output.getbuffer()
         buffer
+
+#endif
